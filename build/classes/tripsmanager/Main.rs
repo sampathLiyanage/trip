@@ -1,0 +1,7 @@
+tripsmanager.Neighbour
+tripsmanager.Source
+tripsmanager.Main
+tripsmanager.Location
+tripsmanager.Place
+tripsmanager.Map
+tripsmanager.Destination
