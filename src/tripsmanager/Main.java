@@ -8,21 +8,25 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
+
+
+
+
+//represents a location
 /**
  *
  * @author dell
  */
 public class Main {
 
+    static void main(String[] args) {
+        
+    }
+
     /**
      * @param args the command line arguments
      */
 }
-
-
-
-
-//represents a location
 abstract class Location {
 	public float x,y;  //x,y coordinates
 	public String type; //Eg: source, destination, place
@@ -211,12 +215,12 @@ class Map{
                 int heuristicValue=(timeToDest-timeTraveled)+(timeToDest-timeTraveled)*((neighbour.loc.rating*6)/100);
                 
                 //if a better heuristic value is found
-                if (heuristicValue<bestHeuristic){
+                if (heuristicValue<bestHeuristic || (heuristicValue==bestHeuristic && timeTraveled<bestLoc.timeOfPath)){
                     bestHeuristic=heuristicValue;
                     bestLoc=neighbour.loc;
                     bestLoc.timeOfPath=timeTraveled;
                     bestLoc.ratingOfPath=loc.ratingOfPath+bestLoc.rating;
-                }
+                } 
             }
 
             return bestLoc;

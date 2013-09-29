@@ -20,12 +20,9 @@ import static org.junit.Assert.*;
  */
 public class MapTest {
 
-    /*
-     * test cases
-     */
 
     /*
-     * test case input)format:
+     * test case (input)format:
      *      noOfLocs: each entry of the array represents no of locations(incuding source and destination) of each test case
      *
      *       timeExpected: each entry of the array represents time limit defined by user of each test case
