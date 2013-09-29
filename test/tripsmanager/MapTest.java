@@ -23,11 +23,31 @@ public class MapTest {
     /*
      * test cases
      */
+
+    /*
+     * test case input)format:
+     *      noOfLocs: each entry of the array represents no of locations(incuding source and destination) of each test case
+     *
+     *       timeExpected: each entry of the array represents time limit defined by user of each test case
+     *
+     *       placesData: each row represents one test case(eg: two test cases are here)
+     *                   in a row, each {x,y} represents data to create places(locations excluding the source and destination)
+     *                   x=rating, y=time spent in the location
+     *
+     *       lowestDistances: each row represents one test case(eg: two test cases are here)
+     *                      in a row, each {x,y,z....} SHORTEST TIME DISTANCE from a location to all other locations
+     *                      all the locations should know the shortest time distance to all other locations
+     *                      first {x,y,z......} represents source location
+     *                      others represents data for other locations in the same order used in placesData array
+     *                      shortest time distance data for destination location shouldn't be added
+     */
     Location src, dest;
-    int[] noOfLocs={5};
-    int[] timesExpected={70};
-    int[][][] placesData={{{1,1}, {1,1}, {1,1}}};
-    int[][][] lowestDistances={{{10,10,19,0},{0,20,9,10},{20,0,29,10},{9,29,0,19}}};
+    int[] noOfLocs={5,6};
+    int[] timesExpected={70,70};
+    int[][][] placesData={{{1,1}, {1,1}, {1,1}},
+                            {{1,1},{1,1},{1,1},{1,1}}};
+    int[][][] lowestDistances={{{10,10,19,0},{0,20,9,10},{20,0,29,10},{9,29,0,19}},
+        {{10, 30, 45, 20, 0}, {0,20,35,10,10}, {20,0,15,15,30}, {35,15,0,30,45}, {10,15,30,0,20}}};
 
 
     public MapTest() {
