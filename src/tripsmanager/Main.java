@@ -7,7 +7,6 @@ package tripsmanager;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Set;
 /**
  *
@@ -18,53 +17,37 @@ public class Main {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-         Location src, dest;
-          src= new Source();
-        dest=new Destination(60);
-        System.out.println("getPath");
-        Location A,B;
-        A=new Place(1,1);
-        B=new Place(1,1);
-        src.addNeighbour(new Neighbour(A,55));
-        src.addNeighbour(new Neighbour(B,20));
-        src.addNeighbour(new Neighbour(dest,45));
-        A.addNeighbour(new Neighbour(src,55));
-        A.addNeighbour(new Neighbour(B,15));
-        A.addNeighbour(new Neighbour(dest,10));
-        B.addNeighbour(new Neighbour(src,20));
-        B.addNeighbour(new Neighbour(A,15));
-        B.addNeighbour(new Neighbour(dest,25));
-        Map instance = new Map(src, (Destination)dest);
-        Destination result = instance.getPath();
-    }
-
 }
 
 
 
 
-
+//represents a location
 abstract class Location {
-	public float x,y;
+	public float x,y;  //x,y coordinates
 	public String type; //Eg: source, destination, place
-	public Location previous; //to be used when finding the path
-
-
+        public int rating;
+	public int ratingOfPath;    //needed when path is calculated
+	public int timeToVisit;     //amount of time a visitor spends in the location
+	public int timeOfPath;      //needed when path is calculated
+        public int timeToDestination;   //minimum time from this location to destination
+        public Boolean alreadyInPath;   //needed when path is calculated
 	public Location(String aType){
 		type=aType;
+                rating=0;
+                ratingOfPath=0;
+                timeToVisit=0;
+                timeOfPath=0;
+                alreadyInPath=false;
 	}
 
+        //functions to implement polimorphism
 	public Iterator<Neighbour> getNeighbours(){
 		return null;
 	}
 
 	public Integer getTimeTraveled(){
 		return null;
-	}
-
-	public void addPrevious(Location loc, int time){
-		previous=loc;
 	}
 
 	public Integer getExpTime(){
@@ -85,162 +68,77 @@ abstract class Location {
 
         public void addNeighbour(Neighbour n){
         }
-
-
-
-
-
 }
 
 
 
-//for source
+//represents source location (where the trip starts)
 class Source extends Location{
-	public Set<Neighbour> neighbours;
-	public int timeToVisit;
+	public Set<Neighbour> neighbours;   //all other locations with time to travel (not the physical neighbours according to the google map)
 
 	public Source(){
 		super("source");
 		neighbours=new HashSet<Neighbour>();
-		timeToVisit=0;
 	}
 
+        //returns all the neighbours
 	public Iterator<Neighbour> getNeighbours(){
 		return neighbours.iterator();
 	}
 
+
         public void addNeighbour(Neighbour n){
             neighbours.add(n);
+             if (n.loc.type.equals("destination")){
+                timeToDestination=n.timeToTravel;
+            }
         }
 
-        public Integer getTimeTraveled(){
-		return 0;
-	}
-
-	public Integer getPathRating(){
-		return 0;
-	}
-
-        public Integer getTimeToVisit(){
-            return 0;
-        }
-
-	public Integer getRating(){
-		return 0;
-	}
+        
 }
 
-//for destination
+//represents the destination (where the trip ends)
 class Destination extends Location{
-	public int expectedTime;
-	public int ratingOfPath;
-	public int timeTraveled;
-	public int latestTimeAdded;
+	public int expectedTime;    //the time allocated for the trip by user
 
 	public Destination(int time){
 		super("destination");
 		expectedTime=time;
-		ratingOfPath=0;
-		timeTraveled=0;
-		latestTimeAdded=0;
+                timeToDestination=0;
 	}
 
 	public Integer getExpTime(){
 		return expectedTime;
 	}
-
-	public Integer getTimeTraveled(){
-		return timeTraveled;
-	}
-
-	public Integer getPathRating(){
-		return ratingOfPath;
-	}
-
-	public void addPrevious(Location pre, int timeToAdd ){
-		if (this.previous!=null){
-			ratingOfPath-=(previous.getPathRating());
-			timeTraveled-=(previous.getTimeTraveled()+latestTimeAdded);
-		}
-
-		latestTimeAdded=timeToAdd;
-		ratingOfPath+=(pre.getPathRating());
-		timeTraveled+=(pre.getTimeTraveled()+latestTimeAdded);
-		previous=pre;
-	}
-
-        public Integer getTimeToVisit(){
-            return 0;
-        }
-
-	public Integer getRating(){
-		return 0;
-	}
 }
 
-//for places on the way
+//represents places on the way
 class Place extends Location{
-	public int rating;
-	public int ratingOfPath;
-	public int timeToVisit;
-	public int timeTraveled;
-	public int latestTimeAdded;
+	
 	public Set<Neighbour> neighbours;
-
-
 
 	public Place(int aRating, int aTimetoVisit){
 		super("place"); //type is "place"
 		rating=aRating;
 		timeToVisit=aTimetoVisit;
 		neighbours=new HashSet<Neighbour>();
-		ratingOfPath=0;
-		timeTraveled=0;
-		latestTimeAdded=0;
 	}
 
         public void addNeighbour(Neighbour n){
             neighbours.add(n);
+            if (n.loc.type.equals("destination")){
+                timeToDestination=n.timeToTravel;
+            }
         }
 	public Iterator<Neighbour> getNeighbours(){
 		return neighbours.iterator();
 	}
-
-	public Integer getTimeTraveled(){
-		return timeTraveled;
-	}
-
-	public Integer getPathRating(){
-		return ratingOfPath;
-	}
-
-        public Integer getTimeToVisit(){
-            return timeToVisit;
-        }
-
-	public Integer getRating(){
-		return rating;
-	}
-        
-
-	public void addPrevious(Location pre, int timeToAdd ){
-		if (this.previous!=null){
-			ratingOfPath-=(previous.getPathRating()+rating);
-			timeTraveled-=(previous.getTimeTraveled()+timeToVisit+latestTimeAdded);
-		}
-
-		latestTimeAdded=timeToAdd;
-		ratingOfPath+=(pre.getPathRating()+rating);
-		timeTraveled+=(pre.getTimeTraveled()+timeToVisit+latestTimeAdded);
-		previous=pre;
-	}
-
 }
 
-//for neighbour places
+//represents a neighbour of a place (ie: another location + traveling time are attributes)
 class Neighbour{
-	public int timeToTravel;
-	public Location loc;
+	public int timeToTravel;    //traveling time from a location
+	public Location loc;    //neighbour location
 
 	public Neighbour(Location aLoc, int time){
 		loc=aLoc;
@@ -248,6 +146,7 @@ class Neighbour{
 	}
 }
 
+//includes algorithms and huristic functions
 class Map{
 	public Location source;
 	public Destination destination;
@@ -257,47 +156,69 @@ class Map{
                 destination=dest;
 	}
 
-	//breadth first search
-	public Destination getPath(){
-		Queue<Location> q = new LinkedList<Location>();
-		q.add(source);
+        //this should be called to get the best path
+        public LinkedList<Location> getPath(){
 
-		while(!q.isEmpty()){
-			Location location=q.remove();
-			Iterator<Neighbour> ittr=location.getNeighbours();
-			while (ittr.hasNext()){
-				Neighbour neighbour=ittr.next();
-
-				if (location.type.equals("source")){
-					neighbour.loc.addPrevious(location, neighbour.timeToTravel);
-                                        if (!neighbour.loc.type.equals("destination"))
-                                            q.add(neighbour.loc);
-				} else if (neighbour.loc.type.equals("destination")){
-					if((neighbour.loc.getExpTime()>(location.getTimeTraveled()+neighbour.timeToTravel)) && ((neighbour.loc.getPathRating()-neighbour.loc.getRating())<location.getPathRating())){
-						neighbour.loc.addPrevious(location, neighbour.timeToTravel);
-					}
-
-				} else if (location.type.equals("place") && neighbour.loc.type.equals("place")){
-					Location temp= location;
-					boolean loop=false;
-					while(temp.previous.type!="source"){
-						temp=temp.previous;
-						if (temp==neighbour.loc){
-							loop=true;
-						}
-					}
-
-					if (loop==false){
-						if((destination.getExpTime()>(location.getTimeTraveled()+neighbour.timeToTravel+neighbour.loc.getTimeToVisit())) && ((neighbour.loc.getPathRating()-neighbour.loc.getRating())<location.getPathRating())){
-							neighbour.loc.addPrevious(location, neighbour.timeToTravel);
-							q.add(neighbour.loc);
-						}
-					}
-				}
-			}
-		}
-		return destination;
+            LinkedList<Location> path=new LinkedList<Location>(); //path
+            Location temp=source;
+            while (temp!=null){
+                //making sure path traveling time doesn't exceed the expected time
+                if(temp.timeOfPath+temp.timeToDestination<destination.expectedTime){
+                    path.add(temp);
+                    temp.alreadyInPath=true;
+                } else{
+                    break;
+                }
+                
+                temp=getNextBestLoc(temp);
+            }
+            destination.timeOfPath=path.getLast().timeOfPath+path.getLast().timeToDestination;
+            destination.ratingOfPath=path.getLast().ratingOfPath;
+            path.add(destination); //ading last node to the path
+            return path;
 	}
 
+        //get next best location to travel from a location
+        //out put may be null if a best location doesn't exsist
+        public Location getNextBestLoc(Location loc){
+            Location bestLoc=null;
+            int bestHeuristic=destination.expectedTime;
+            Iterator<Neighbour> ittr=loc.getNeighbours();
+            while (ittr.hasNext()){
+            	Neighbour neighbour=ittr.next();
 
+                //destination type is neglected
+                if (neighbour.loc.type.equals("destination")){
+                    continue;
+                }
+
+                //if the neighbour location is already in the path
+                if (neighbour.loc.alreadyInPath){
+                    continue;
+                }
+
+                int timeTraveled=loc.timeOfPath+neighbour.timeToTravel+neighbour.loc.timeToVisit;  //time traveled if the neighbour loc is added
+                int timeToDest=timeTraveled+neighbour.loc.timeToDestination;    //time from source to destination if the neighbour loc is added
+                
+                //if time to destination exceeds expected time
+                if (timeToDest>destination.expectedTime){
+                    continue;
+                }
+
+                //heuristic value
+                //lowest huristic value is the best one here
+                //assumption: 1. rating can be taken only integers 0,1,2,3,4,5
+                int heuristicValue=(timeToDest-timeTraveled)+(timeToDest-timeTraveled)*((neighbour.loc.rating*6)/100);
+                
+                //if a better heuristic value is found
+                if (heuristicValue<bestHeuristic){
+                    bestHeuristic=heuristicValue;
+                    bestLoc=neighbour.loc;
+                    bestLoc.timeOfPath=timeTraveled;
+                    bestLoc.ratingOfPath=loc.ratingOfPath+bestLoc.rating;
+                }
+            }
+
+            return bestLoc;
+        }
 }

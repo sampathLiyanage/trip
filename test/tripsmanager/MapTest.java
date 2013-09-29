@@ -5,6 +5,8 @@
 
 package tripsmanager;
 
+import java.util.Iterator;
+import java.util.LinkedList;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -18,7 +20,16 @@ import static org.junit.Assert.*;
  */
 public class MapTest {
 
+    /*
+     * test cases
+     */
     Location src, dest;
+    int[] noOfLocs={5};
+    int[] timesExpected={70};
+    int[][][] placesData={{{1,1}, {1,1}, {1,1}}};
+    int[][][] lowestDistances={{{10,10,19,0},{0,20,9,10},{20,0,29,10},{9,29,0,19}}};
+
+
     public MapTest() {
     }
 
@@ -33,9 +44,6 @@ public class MapTest {
 
     @Before
     public void setUp() {
-        src= new Source();
-        dest=new Destination(120);
-        
     }
 
     @After
@@ -47,32 +55,36 @@ public class MapTest {
      */
     @Test
     public void testGetPath() {
-        System.out.println("getPath");
-        Location A,B,C;
-        A=new Place(1,1);
-        B=new Place(1,1);
-        C=new Place(1,1);
-        src.addNeighbour(new Neighbour(A,55));
-        src.addNeighbour(new Neighbour(B,20));
-        src.addNeighbour(new Neighbour(C,45));
-        src.addNeighbour(new Neighbour(dest,0));
-        A.addNeighbour(new Neighbour(src,55));
-        A.addNeighbour(new Neighbour(B,15));
-        A.addNeighbour(new Neighbour(C,10));
-        A.addNeighbour(new Neighbour(dest,55));
-        B.addNeighbour(new Neighbour(src,20));
-        B.addNeighbour(new Neighbour(A,15));
-        B.addNeighbour(new Neighbour(C,25));
-        B.addNeighbour(new Neighbour(dest,20));
-        C.addNeighbour(new Neighbour(src,45));
-        C.addNeighbour(new Neighbour(A,10));
-        C.addNeighbour(new Neighbour(B,25));
-        C.addNeighbour(new Neighbour(dest,45));
-        Map instance = new Map(src, (Destination)dest);
-        Destination result = instance.getPath();
-        assertEquals(result.previous, A);
-        assertEquals(result.previous.previous, src);
-        // TODO review the generated test code and remove the default call to fail.
+        for (int i=0; i<noOfLocs.length; i++){
+            src= new Source();
+            dest=new Destination(timesExpected[i]);
+            System.out.println("getPath");
+            Location[] places= new Location[noOfLocs[i]-2];
+            int j;
+            for (j=0; j<noOfLocs[i]-2; j++){
+                places[j]=new Place(placesData[i][j][0],placesData[i][j][1]);
+            }
+
+            
+            for (j=0; j<noOfLocs[i]-2; j++){
+                src.addNeighbour(new Neighbour(places[j],lowestDistances[i][0][j]));
+            }
+            src.addNeighbour(new Neighbour(dest,lowestDistances[i][0][j]));
+
+            for (j=0; j<noOfLocs[i]-2; j++){
+                int k;
+                for (k=0; k<noOfLocs[i]-2; k++){
+                    if (k==j)
+                        continue;
+                    places[j].addNeighbour(new Neighbour(places[k],lowestDistances[i][j+1][k]));
+                }
+                places[j].addNeighbour(new Neighbour(dest,lowestDistances[i][j+1][k]));
+            }
+            Map instance = new Map(src, (Destination)dest);
+            LinkedList<Location> result = instance.getPath();
+            Iterator<Location> ittr=result.iterator();
+            System.out.print('x');
+        }
     }
 
 }
